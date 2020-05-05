@@ -31,6 +31,13 @@ colnames(herb_en_motif1)<-c("low.level","high.level","weight")
 herb_en_motif1 ##LEPI 1 ASOCIADOS A SOJA
 
 
+## This could be shortened to this:
+herb_en_motif_alt <- INT[INT$lower.taxon == "pl1",]
+herb_en_motif_alt <- herb_en_motif_alt[c(2,3,7)]
+
+
+
+
 ####  
 ###herbiv soja (L1)-parasitoid
 parasitoides<-function(INT,k){
@@ -52,11 +59,8 @@ amigos<-as.character(herb_en_motif1[,2])#insects participando de motifs
 
 #function including parasitoides function (for each partner insect in soybea crop...)
 total1<-function(INT,amigos){
-	filas<-nrow(INT)
-	columnas<-length(amigos)
-	final<-matrix(,filas,columnas)
-	uno.a.uno<-length(amigos)
-	for (j in 1:uno.a.uno){ #para cada companero de soja
+	final<-matrix(NA,nrow(INT),length(amigos))
+	for (j in 1:length(amigos)){ #para cada companero de soja
 		k<-amigos[j]
 		final[,j]<-parasitoides(INT,k)#busco sus plantas compa;eras de borde
 	}
@@ -86,8 +90,7 @@ L1.parasitoid
 ###lepidopterans-parasitoid
 herb.borde<-function(INT,k){
 	level.2borde<-NULL
-	por.fila<-length(INT[,1])
-	for(i in 1:por.fila){
+	for(i in 1:length(INT[,1])){
 		if (INT[i,"upper.taxon"]==as.character(k)){ 
     		low.tax<- INT[i,"lower.taxon"]
 		level.2borde[i]<-as.character(low.tax)
@@ -102,11 +105,8 @@ herb.borde<-function(INT,k){
 
 #function including planta.edge function (for each partner insect in soybea crop...)
 total1<-function(INT,amigos2.1){
-	filas<-nrow(INT)
-	columnas<-length(amigos2.1)
-	final<-matrix(,filas,columnas)
-	uno.a.uno<-length(amigos2.1)
-	for (j in 1:uno.a.uno){ #para cada companero de soja
+	final<-matrix(NA,nrow(INT),length(amigos2.1))
+	for (j in 1:length(amigos2.1)){ #para cada companero de soja
 		k<-amigos2.1[j]
 		final[,j]<-herb.borde(INT,k)#busco sus plantas compa;eras de borde
 	}
@@ -134,8 +134,7 @@ Larvas.parasitoids[[i]]<-Ls.paras1
 Larvas.parasitoids
 
 Larvas.parasitoids.final<-NULL
-elementos<-length(Larvas.parasitoids)
-	for (i in 1:elementos){	
+for (i in 1:length(Larvas.parasitoids)){	
 		if (nrow(Larvas.parasitoids[[i]])>1){
 		Larvas.parasitoids.final[[i]]=Larvas.parasitoids[[i]]
 		}
@@ -149,8 +148,7 @@ Larvas.parasitoids.final
 ###plants-lepidopterans
 planta.borde<-function(INT,k){
 	level.1borde<-NULL
-	por.fila<-length(INT[,1])
-	for(i in 1:por.fila){
+	for(i in 1:length(INT[,1])){
 		if (INT[i,"upper.taxon"]==as.character(k)){ 
     		low.tax<- INT[i,"lower.taxon"]
 		level.1borde[i]<-as.character(low.tax)
@@ -164,11 +162,8 @@ planta.borde<-function(INT,k){
 
 #function including planta.edge function (for each partner insect in soybea crop...)
 total1<-function(INT,amigos3.1){
-	filas<-nrow(INT)
-	columnas<-length(amigos3.1)
-	final<-matrix(,filas,columnas)
-	uno.a.uno<-length(amigos3.1)
-	for (j in 1:uno.a.uno){ #para cada companero de soja
+	final<-matrix(NA,nrow(INT),length(amigos3.1))
+	for (j in 1:length(amigos3.1)){ #para cada companero de soja
 		k<-amigos3.1[j]
 		final[,j]<-planta.borde(INT,k)#busco sus plantas compa;eras de borde
 	}
@@ -180,16 +175,17 @@ colnames(matriz.compas3)=amigos3.1
 
 matriz.compas3
 
+matriz.compas3[12,1] <- "pl1" # Testing the script below
+
 ###HELP HERE!!! I need to take each column of "matriz.compas3" and search for "pl1". If pl1=T take this column again
 #and change all cells differents to "pl1" by "no". This works but stop in the first "pl1"
 
-columnas<-ncol(matriz.compas3) 
-filas<-nrow(matriz.compas3)
-matriz.compas4<-matrix(0,filas,columnas)
-for (i in 1:columnas){
-	for(j in 1:filas){
+matriz.compas4<-matrix(0,nrow(matriz.compas3),ncol(matriz.compas3))
+
+for (i in 1:ncol(matriz.compas3)){
+	for(j in 1:nrow(matriz.compas3)){
 		if (as.character(matriz.compas3[j,i])=="pl1"){ #if "pl1" is true enter here
-			for(k in 1:filas){ ####I think that the problem is here. I need take a column with "pl1" and change !="pl1" by "no"
+			for(k in 1:nrow(matriz.compas3)){ ####I think that the problem is here. I need take a column with "pl1" and change !="pl1" by "no"
 				if (as.character(matriz.compas3[k,i])=="pl1"){ 
 				matriz.compas4[k,i]<-"soja"  #in the final version="pl1", I change names to check
 				}else{
@@ -201,6 +197,8 @@ for (i in 1:columnas){
 		}
 	}
 }
+
+matriz.compas4
 
 
 pl_borde.larvas<-NULL
