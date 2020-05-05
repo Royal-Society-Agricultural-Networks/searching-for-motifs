@@ -40,6 +40,10 @@ motif.detector_ac <- function(edgelist,crop.plant){
   motif_interactions <- rbind(herbivores_mat, parasitoids_mat, shared.herbivores_mat, shared.host.plants_mat)
   motif_interactions <- distinct(data.frame(motif_interactions))
   
+  ## 6. Remove non-motif interactions with shared herbivore parasitoids
+  # Remove all parasitoids that only occur once in the shared herbivores matrix.... 
+  
+  ## 7. Report the results of the search
   return(motif_interactions)
   
 }
