@@ -1,6 +1,8 @@
 ## A function to detect the apparent competition (ac) between herbivores of in- and off-crop plants
 motif.detector_ac <- function(edgelist,crop.plant){
   
+  options(warn = -1)
+  
   ## 1. Detect the herbivores interacting with the crop plants of interest
   herb_en_motif <- NULL
   for (i in 1:length(crop.plant)){
@@ -22,11 +24,13 @@ motif.detector_ac <- function(edgelist,crop.plant){
   ## 3. Detect the shared herbivores of the parasitoids of the herbivores feeding on crop plants
   shared_herb_en_motif <- NULL
   for (k in 1:length(parasitoids)){ 
-    shared_herb_en_motif[[k]] <- edgelist[edgelist$upper.taxon == parasitoids[k],]
+    shared_herb <- edgelist[edgelist$upper.taxon == parasitoids[k],]
+    if(nrow(shared_herb)>1){
+      shared_herb_en_motif[[k]] <- shared_herb  
+    }
   }
   shared.herbivores_mat <- as.matrix(do.call(rbind, shared_herb_en_motif)) # Bind the lists of interactions together
   shared.herbivores <- unique(shared.herbivores_mat[,2]) # Names of the lower taxon (the shared herbivores of the parasitoids of the crop plant herbivores)
-  
   
   ## 4. Detect the shared plants of herbivores of the parasitoids of the herbivores feeding on crop plants
   shared.host.plants_en_motif <- NULL
@@ -37,13 +41,13 @@ motif.detector_ac <- function(edgelist,crop.plant){
   shared.host.plants <- unique(shared.host.plants_mat[,2]) # Names of the lower taxon (the shared host plants of the shared herbivores of the parasitoids of the crop plant herbivores)
   
   ## 5. Collate all of the interactions taking part in the motifs
-  motif_interactions <- rbind(herbivores_mat, parasitoids_mat, shared.herbivores_mat, shared.host.plants_mat)
+  motif_interactions <- rbind(herbivores_mat, 
+                              parasitoids_mat[parasitoids_mat[,3] == shared.herbivores_mat[,3]], # Remove the parasitoids that are not shared with shared plant herbivores
+                              shared.herbivores_mat, 
+                              shared.host.plants_mat[shared.host.plants_mat[,3] != herbivores_mat[,3]]) # Remove the host plant-herbivore interactions not with shared herbivores
   motif_interactions <- distinct(data.frame(motif_interactions))
   
-  ## 6. Remove non-motif interactions with shared herbivore parasitoids
-  # Remove all parasitoids that only occur once in the shared herbivores matrix.... 
-  
-  ## 7. Report the results of the search
+    ## 7. Report the results of the search
   return(motif_interactions)
   
 }
